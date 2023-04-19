@@ -17,35 +17,35 @@ pub struct Model {
 #[derive(Enum, Debug, Clone, Copy, PartialEq, Eq, EnumIter, DeriveActiveEnum)]
 #[sea_orm(rs_type = "i32", db_type = "Integer")]
 pub enum Code {
-    #[graphql(name = "CREDIT_PURCHASE")]
-    #[sea_orm(num_value = 0)]
-    CreditPurchase,
-    #[graphql(name = "SOLANA_CREATE_DROP")]
+    #[graphql(name = "CREDIT_DEPOSIT")]
     #[sea_orm(num_value = 1)]
+    CreditDeposit,
+    #[graphql(name = "SOLANA_CREATE_DROP")]
+    #[sea_orm(num_value = 2)]
     SolanaCreateDrop,
     #[graphql(name = "POLYGON_CREATE_DROP")]
-    #[sea_orm(num_value = 2)]
+    #[sea_orm(num_value = 3)]
     PolygonCreateDrop,
     #[graphql(name = "SOLANA_MINT_EDITION")]
-    #[sea_orm(num_value = 3)]
+    #[sea_orm(num_value = 4)]
     SolanaMintEdition,
     #[graphql(name = "SOLANA_TRANSFER_ASSET")]
-    #[sea_orm(num_value = 4)]
+    #[sea_orm(num_value = 5)]
     SolanaTransferAsset,
     #[graphql(name = "SOLANA_RETRY_MINT")]
-    #[sea_orm(num_value = 5)]
+    #[sea_orm(num_value = 6)]
     SolanaRetryMint,
 }
 
 impl From<Code> for i32 {
     fn from(value: Code) -> Self {
         match value {
-            Code::CreditPurchase => 0,
-            Code::SolanaCreateDrop => 1,
-            Code::PolygonCreateDrop => 2,
-            Code::SolanaMintEdition => 3,
-            Code::SolanaTransferAsset => 4,
-            Code::SolanaRetryMint => 5,
+            Code::CreditDeposit => 1,
+            Code::SolanaCreateDrop => 2,
+            Code::PolygonCreateDrop => 3,
+            Code::SolanaMintEdition => 4,
+            Code::SolanaTransferAsset => 5,
+            Code::SolanaRetryMint => 6,
         }
     }
 }

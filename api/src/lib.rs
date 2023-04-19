@@ -28,7 +28,7 @@ use queries::Query;
 #[derive(Debug, clap::Args)]
 #[command(version, author, about)]
 pub struct Args {
-    #[arg(short, long, env, default_value_t = 3003)]
+    #[arg(short, long, env, default_value_t = 3010)]
     pub port: u16,
 
     #[command(flatten)]
