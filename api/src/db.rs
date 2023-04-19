@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use hub_core::{anyhow::Result, clap, prelude::*};
-pub use holaplex_rust_boilerplate_core::sea_orm::{ConnectOptions, Database, DatabaseConnection};
+pub use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 /// Arguments for establishing a database connection
 #[derive(Debug, clap::Args)]
@@ -42,7 +42,7 @@ impl Connection {
             .idle_timeout(Duration::from_secs(idle_timeout))
             .clone();
 
-        let connection = Database::connect(options)
+        let connection = sea_orm::Database::connect(options)
             .await
             .context("failed to get database connection")?;
 
