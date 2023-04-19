@@ -1,29 +1,17 @@
+//!
 
-
-use holaplex_rust_boilerplate_api::{
-    db::{Connection, DbArgs},
-    graphql::schema::build_schema,
-    handlers::{graphql_handler, playground},
-    AppState,
+use holaplex_hub_credits::{
+    build_schema,
+    db::Connection,
+    handlers::{get_organization, graphql_handler, health, playground},
+    AppState, Args,
 };
-use hub_core::{clap, prelude::*};
-use poem::{
-    get, listener::TcpListener, middleware::AddData, post, EndpointExt, Route, Server,
-};
-
-#[derive(Debug, clap::Args)]
-#[command(version, author, about)]
-pub struct Args {
-    #[arg(short, long, env, default_value_t = 3002)]
-    pub port: u16,
-
-    #[command(flatten)]
-    pub db: DbArgs,
-}
+use hub_core::anyhow::Context as AnyhowContext;
+use poem::{get, listener::TcpListener, middleware::AddData, post, EndpointExt, Route, Server};
 
 pub fn main() {
     let opts = hub_core::StartConfig {
-        service_name: "hub-boilerplate-rust",
+        service_name: "hub-credits",
     };
 
     hub_core::run(opts, |common, args| {
@@ -36,7 +24,7 @@ pub fn main() {
 
             let schema = build_schema();
 
-            let state = AppState::new(schema, connection);
+            let state = AppState::new(schema, connection.clone());
 
             Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
                 .run(
@@ -45,10 +33,15 @@ pub fn main() {
                             "/graphql",
                             post(graphql_handler).with(AddData::new(state.clone())),
                         )
-                        .at("/playground", get(playground)),
+                        .at(
+                            "/internal/organizations/:organization",
+                            get(get_organization).data(connection),
+                        )
+                        .at("/playground", get(playground))
+                        .at("/health", get(health)),
                 )
                 .await
-                .map_err(Into::into)
+                .context("failed to build graphql server")
         })
     });
 }

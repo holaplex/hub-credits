@@ -1,0 +1,9 @@
+[registry]
+endpoint = "https://schemas.holaplex.tools/"
+
+[schemas]
+organization = 3
+nfts = 3
+customer = 1
+treasury = 5
+credential = 2
