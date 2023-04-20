@@ -1,5 +1,7 @@
 use sea_orm_migration::prelude::*;
 
+use crate::m20230418_193337_create_organization_credits_table::OrganizationCredits;
+
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
@@ -18,6 +20,11 @@ impl MigrationTrait for Migration {
                             .primary_key()
                             .extra("default gen_random_uuid()".to_string()),
                     )
+                    .col(
+                        ColumnDef::new(CreditChanges::Organization)
+                            .uuid()
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(CreditChanges::InitiatedBy).uuid().not_null())
                     .col(
                         ColumnDef::new(CreditChanges::Credits)
@@ -30,6 +37,14 @@ impl MigrationTrait for Migration {
                             .timestamp()
                             .not_null()
                             .extra("default now()".to_string()),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-credit_changes_org")
+                            .from(CreditChanges::Table, CreditChanges::Organization)
+                            .to(OrganizationCredits::Table, OrganizationCredits::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .to_owned(),
             )
@@ -91,6 +106,7 @@ impl MigrationTrait for Migration {
 enum CreditChanges {
     Table,
     Id,
+    Organization,
     InitiatedBy,
     Credits,
     Code,

@@ -8,6 +8,7 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
+    pub organization: Uuid,
     pub initiated_by: Uuid,
     pub credits: i64,
     pub code: Code,
@@ -29,12 +30,21 @@ pub enum Code {
     #[graphql(name = "SOLANA_MINT_EDITION")]
     #[sea_orm(num_value = 4)]
     SolanaMintEdition,
-    #[graphql(name = "SOLANA_TRANSFER_ASSET")]
+    #[graphql(name = "POLYGON_MINT_EDITION")]
     #[sea_orm(num_value = 5)]
-    SolanaTransferAsset,
-    #[graphql(name = "SOLANA_RETRY_MINT")]
+    PolygonMintEdition,
+    #[graphql(name = "SOLANA_TRANSFER_ASSET")]
     #[sea_orm(num_value = 6)]
+    SolanaTransferAsset,
+    #[graphql(name = "POLYGON_TRANSFER_ASSET")]
+    #[sea_orm(num_value = 7)]
+    PolygonTransferAsset,
+    #[graphql(name = "SOLANA_RETRY_MINT")]
+    #[sea_orm(num_value = 8)]
     SolanaRetryMint,
+    #[graphql(name = "POLYGON_RETRY_MINT")]
+    #[sea_orm(num_value = 9)]
+    PolygonRetryMint,
 }
 
 impl From<Code> for i32 {
@@ -44,13 +54,31 @@ impl From<Code> for i32 {
             Code::SolanaCreateDrop => 2,
             Code::PolygonCreateDrop => 3,
             Code::SolanaMintEdition => 4,
-            Code::SolanaTransferAsset => 5,
-            Code::SolanaRetryMint => 6,
+            Code::PolygonMintEdition => 5,
+            Code::SolanaTransferAsset => 6,
+            Code::PolygonTransferAsset => 7,
+            Code::SolanaRetryMint => 8,
+            Code::PolygonRetryMint => 9,
         }
     }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::organization_credits::Entity",
+        from = "Column::Organization",
+        to = "super::organization_credits::Column::Id",
+        on_update = "Cascade",
+        on_delete = "Cascade"
+    )]
+    OrganizationCredits,
+}
+
+impl Related<super::organization_credits::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::OrganizationCredits.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}
