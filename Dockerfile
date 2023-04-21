@@ -47,9 +47,9 @@ RUN apt-get update -y && \
 RUN mkdir -p bin
 
 FROM base AS hub-credits
-COPY --from=builder-hub-credits /app/target/release/holaplex-hub-credits bin
-CMD ["bin/holaplex-hub-credits"]
+COPY --from=builder-hub-credits /app/target/release/holaplex-hub-credits /usr/local/bin
+CMD ["/usr/local/bin/holaplex-hub-credits"]
 
 FROM base AS migrator
-COPY --from=builder-migration /app/target/release/migration bin/
-CMD ["bin/migration"]
+COPY --from=builder-migration /app/target/release/migration /usr/local/bin
+CMD ["/usr/local/bin/migration"]
