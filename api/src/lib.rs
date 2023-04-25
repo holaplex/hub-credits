@@ -8,17 +8,21 @@ pub mod db;
 pub mod entities;
 pub mod handlers;
 pub mod mutations;
+pub mod objects;
 pub mod queries;
 
 use async_graphql::{
+    dataloader::DataLoader,
     extensions::{ApolloTracing, Logger},
     EmptySubscription, Schema,
 };
+use dataloaders::{CreditsLoader, TotalDeductionsLoader};
 use db::Connection;
 use hub_core::{
     anyhow::{Error, Result},
     clap,
     prelude::*,
+    tokio,
     uuid::Uuid,
 };
 use mutations::Mutation;
@@ -79,12 +83,23 @@ impl AppState {
 pub struct AppContext {
     pub db: Connection,
     pub user_id: Option<Uuid>,
+    pub credits_loader: DataLoader<CreditsLoader>,
+    pub total_deductions_loader: DataLoader<TotalDeductionsLoader>,
 }
 
 impl AppContext {
     #[must_use]
     pub fn new(db: Connection, user_id: Option<Uuid>) -> Self {
-        Self { db, user_id }
+        let credits_loader = DataLoader::new(CreditsLoader::new(db.clone()), tokio::spawn);
+        let total_deductions_loader =
+            DataLoader::new(TotalDeductionsLoader::new(db.clone()), tokio::spawn);
+
+        Self {
+            db,
+            user_id,
+            credits_loader,
+            total_deductions_loader,
+        }
     }
 }
 
