@@ -1469,13 +1469,13 @@ dependencies = [
  "async-graphql",
  "async-graphql-poem",
  "async-std",
- "bigdecimal",
  "holaplex-hub-core",
  "holaplex-hub-core-build",
  "poem",
+ "prost",
  "sea-orm",
- "sea-query",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

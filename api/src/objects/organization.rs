@@ -25,7 +25,7 @@ impl Organization {
 
         credits_loader.load_one(self.id).await
     }
-    /// Define an asynchronous function to load the total credits deducted grouped by each action
+    /// Define an asynchronous function to load the total credits deducted for each action
     /// Returns `DeductionTotals` object
     /// #Errors
     /// returns error if total_deductions_loader is not found in the context or if the loader fails to load the total deductions

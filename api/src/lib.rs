@@ -6,6 +6,7 @@ pub mod dataloaders;
 pub mod db;
 #[allow(clippy::pedantic)]
 pub mod entities;
+pub mod events;
 pub mod handlers;
 pub mod mutations;
 pub mod objects;
@@ -21,6 +22,7 @@ use db::Connection;
 use hub_core::{
     anyhow::{Error, Result},
     clap,
+    consumer::RecvError,
     prelude::*,
     tokio,
     uuid::Uuid,
@@ -28,6 +30,37 @@ use hub_core::{
 use mutations::Mutation;
 use poem::{async_trait, FromRequest, Request, RequestBody};
 use queries::Query;
+
+#[allow(clippy::pedantic)]
+pub mod proto {
+    include!(concat!(env!("OUT_DIR"), "/organization.proto.rs"));
+}
+
+#[derive(Debug)]
+pub enum Services {
+    Organizations(proto::OrganizationEventKey, proto::OrganizationEvents),
+}
+
+impl hub_core::consumer::MessageGroup for Services {
+    const REQUESTED_TOPICS: &'static [&'static str] = &["hub-orgs"];
+
+    fn from_message<M: hub_core::consumer::Message>(msg: &M) -> Result<Self, RecvError> {
+        let topic = msg.topic();
+        let key = msg.key().ok_or(RecvError::MissingKey)?;
+        let val = msg.payload().ok_or(RecvError::MissingPayload)?;
+        info!(topic, ?key, ?val);
+
+        match topic {
+            "hub-orgs" => {
+                let key = proto::OrganizationEventKey::decode(key)?;
+                let val = proto::OrganizationEvents::decode(val)?;
+
+                Ok(Services::Organizations(key, val))
+            },
+            t => Err(RecvError::BadTopic(t.into())),
+        }
+    }
+}
 
 #[derive(Debug, clap::Args)]
 #[command(version, author, about)]
@@ -37,6 +70,9 @@ pub struct Args {
 
     #[command(flatten)]
     pub db: db::DbArgs,
+
+    #[arg(short, long, env)]
+    pub gift_amount: u64,
 }
 
 pub type AppSchema = Schema<Query, Mutation, EmptySubscription>;

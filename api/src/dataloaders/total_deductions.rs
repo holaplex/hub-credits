@@ -32,10 +32,7 @@ impl DataLoader<Uuid> for Loader {
             .select_only()
             .column(credit_deductions::Column::Organization)
             .column(credit_deductions::Column::Action)
-            .column_as(
-                credit_deductions::Column::Credits.sum(),
-                "total_credits_deduction",
-            )
+            .column_as(credit_deductions::Column::Credits.sum(), "spent")
             .filter(
                 credit_deductions::Column::Organization.is_in(keys.iter().map(ToOwned::to_owned)),
             )
