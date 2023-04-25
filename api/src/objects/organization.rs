@@ -34,7 +34,7 @@ impl Organization {
         &self,
         ctx: &Context<'_>,
         id: Uuid,
-    ) -> Result<Option<DeductionTotals>> {
+    ) -> Result<Option<Vec<DeductionTotals>>> {
         let AppContext {
             total_deductions_loader,
             ..

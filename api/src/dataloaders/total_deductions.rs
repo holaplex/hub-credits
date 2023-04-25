@@ -25,7 +25,7 @@ impl Loader {
 #[async_trait]
 impl DataLoader<Uuid> for Loader {
     type Error = FieldError;
-    type Value = DeductionTotals;
+    type Value = Vec<DeductionTotals>;
 
     async fn load(&self, keys: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
         let deductions = CreditDeductions::find()
@@ -42,15 +42,16 @@ impl DataLoader<Uuid> for Loader {
             .all(self.db.get())
             .await?;
 
-        Ok(deductions
-            .into_iter()
-            .map(|d| {
-                (d.organization, DeductionTotals {
-                    action: d.action,
-                    spent: d.spent,
-                })
-            })
-            .collect())
+        let mut hashmap = HashMap::new();
+
+        for d in deductions {
+            hashmap
+                .entry(d.organization)
+                .or_insert(Vec::new())
+                .push(d.into());
+        }
+
+        Ok(hashmap)
     }
 }
 
@@ -59,4 +60,10 @@ pub struct TotalDeductions {
     pub organization: Uuid,
     pub action: Action,
     pub spent: i64,
+}
+
+impl From<TotalDeductions> for DeductionTotals {
+    fn from(TotalDeductions { action, spent, .. }: TotalDeductions) -> Self {
+        Self { action, spent }
+    }
 }
