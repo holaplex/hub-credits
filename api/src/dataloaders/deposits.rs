@@ -6,8 +6,7 @@ use sea_orm::prelude::*;
 
 use crate::{
     db::Connection,
-    entities::{organization_credits, prelude::OrganizationCredits},
-    objects::Credits,
+    entities::{credit_deposits, credit_deposits::Model as CreditDeposit, prelude::CreditDeposits},
 };
 
 #[derive(Debug, Clone)]
@@ -25,17 +24,22 @@ impl Loader {
 #[async_trait]
 impl DataLoader<Uuid> for Loader {
     type Error = FieldError;
-    type Value = Credits;
+    type Value = Vec<CreditDeposit>;
 
     async fn load(&self, keys: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
-        let org_credits = OrganizationCredits::find()
-            .filter(organization_credits::Column::Id.is_in(keys.iter().map(ToOwned::to_owned)))
+        let deposits = CreditDeposits::find()
+            .filter(credit_deposits::Column::Organization.is_in(keys.iter().map(ToOwned::to_owned)))
             .all(self.db.get())
             .await?;
 
-        Ok(org_credits
+        Ok(deposits
             .into_iter()
-            .map(|oc| (oc.id, oc.into()))
-            .collect())
+            .fold(HashMap::new(), |mut acc, deposit| {
+                acc.entry(deposit.organization)
+                    .or_insert_with(Vec::new)
+                    .push(deposit);
+
+                acc
+            }))
     }
 }

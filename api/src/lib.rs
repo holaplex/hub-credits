@@ -31,6 +31,8 @@ use mutations::Mutation;
 use poem::{async_trait, FromRequest, Request, RequestBody};
 use queries::Query;
 
+use crate::dataloaders::DepositsLoader;
+
 #[allow(clippy::pedantic)]
 pub mod proto {
     include!(concat!(env!("OUT_DIR"), "/organization.proto.rs"));
@@ -121,6 +123,7 @@ pub struct AppContext {
     pub user_id: Option<Uuid>,
     pub credits_loader: DataLoader<CreditsLoader>,
     pub total_deductions_loader: DataLoader<TotalDeductionsLoader>,
+    pub deposits_loader: DataLoader<DepositsLoader>,
 }
 
 impl AppContext {
@@ -129,12 +132,14 @@ impl AppContext {
         let credits_loader = DataLoader::new(CreditsLoader::new(db.clone()), tokio::spawn);
         let total_deductions_loader =
             DataLoader::new(TotalDeductionsLoader::new(db.clone()), tokio::spawn);
+        let deposits_loader = DataLoader::new(DepositsLoader::new(db.clone()), tokio::spawn);
 
         Self {
             db,
             user_id,
             credits_loader,
             total_deductions_loader,
+            deposits_loader,
         }
     }
 }
