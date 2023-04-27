@@ -4,7 +4,6 @@
 
 pub mod dataloaders;
 pub mod db;
-#[allow(clippy::pedantic)]
 pub mod entities;
 pub mod events;
 pub mod handlers;
@@ -32,15 +31,24 @@ use poem::{async_trait, FromRequest, Request, RequestBody};
 use queries::Query;
 
 use crate::dataloaders::DepositsLoader;
+impl hub_core::producer::Message for credits::CreditsEvent {
+    type Key = credits::CreditsEventKey;
+}
 
 #[allow(clippy::pedantic)]
 pub mod proto {
     include!(concat!(env!("OUT_DIR"), "/organization.proto.rs"));
+    include!(concat!(env!("OUT_DIR"), "/credits_mpsc.rs"));
+}
+
+pub mod credits {
+    include!(concat!(env!("OUT_DIR"), "/credits.rs"));
 }
 
 #[derive(Debug)]
 pub enum Services {
     Organizations(proto::OrganizationEventKey, proto::OrganizationEvents),
+    CreditsMpsc(credits::CreditsEventKey, proto::CreditsMpscEvent),
 }
 
 impl hub_core::consumer::MessageGroup for Services {
@@ -58,6 +66,12 @@ impl hub_core::consumer::MessageGroup for Services {
                 let val = proto::OrganizationEvents::decode(val)?;
 
                 Ok(Services::Organizations(key, val))
+            },
+            "credits-mpsc" => {
+                let key = credits::CreditsEventKey::decode(key)?;
+                let val = proto::CreditsMpscEvent::decode(val)?;
+
+                Ok(Services::CreditsMpsc(key, val))
             },
             t => Err(RecvError::BadTopic(t.into())),
         }
