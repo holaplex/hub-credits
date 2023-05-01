@@ -9,7 +9,6 @@ use crate::AppContext;
 #[graphql(complex)]
 pub struct Organization {
     // Define an external GraphQL field for the ID of the organization
-    #[graphql(external)]
     pub id: Uuid,
 }
 
@@ -33,13 +32,12 @@ impl Organization {
     pub async fn deduction_totals(
         &self,
         ctx: &Context<'_>,
-        id: Uuid,
     ) -> Result<Option<Vec<DeductionTotals>>> {
         let AppContext {
             total_deductions_loader,
             ..
         } = ctx.data::<AppContext>()?;
 
-        total_deductions_loader.load_one(id).await
+        total_deductions_loader.load_one(self.id).await
     }
 }

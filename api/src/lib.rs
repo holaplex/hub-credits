@@ -15,7 +15,7 @@ pub mod queries;
 use async_graphql::{
     dataloader::DataLoader,
     extensions::{ApolloTracing, Logger},
-    EmptySubscription, Schema,
+    EmptyMutation, EmptySubscription, Schema,
 };
 use dataloaders::{CreditsLoader, TotalDeductionsLoader};
 use db::Connection;
@@ -27,7 +27,6 @@ use hub_core::{
     tokio,
     uuid::Uuid,
 };
-use mutations::Mutation;
 use poem::{async_trait, FromRequest, Request, RequestBody};
 use queries::Query;
 
@@ -77,7 +76,7 @@ pub struct Args {
     pub gift_amount: u64,
 }
 
-pub type AppSchema = Schema<Query, Mutation, EmptySubscription>;
+pub type AppSchema = Schema<Query, EmptyMutation, EmptySubscription>;
 
 #[derive(Debug, Clone, Copy)]
 pub struct UserID(Option<Uuid>);
@@ -147,7 +146,7 @@ impl AppContext {
 /// Builds the GraphQL Schema, attaching the Database to the context
 #[must_use]
 pub fn build_schema() -> AppSchema {
-    Schema::build(Query::default(), Mutation::default(), EmptySubscription)
+    Schema::build(Query::default(), EmptyMutation, EmptySubscription)
         .extension(ApolloTracing)
         .extension(Logger)
         .enable_federation()
