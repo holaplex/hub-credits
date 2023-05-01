@@ -1,12 +1,13 @@
-# hub-rust-boilerplate
-Template rust service repository for the Holaplex Hub
+# Holaplex Hub Credits
+Credits is a chain agnostic method of paying for blockchain transactions and storage using the Holaplex Hub API without having to have a wallet or purchase the blockchain's native token.
 
-# Workspaces
+# Getting Started
+
+Requires:
+- Docker
+- Rust
 
 ```
-/api # API server
-/core # shared dependencies such as queries and mutations
-/entity # application database models and graphql objects
-/migration # database migrations
-/src # app entry point
+$ docker compose up -d
+$ cargo run --bin hub-credits
 ```
