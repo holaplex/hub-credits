@@ -35,6 +35,17 @@ pub enum Blockchain {
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Enum, Serialize, Deserialize,
 )]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "deduction_status")]
+pub enum DeductionStatus {
+    #[sea_orm(string_value = "confirmed")]
+    Confirmed,
+    #[sea_orm(string_value = "pending")]
+    Pending,
+}
+
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Enum, Serialize, Deserialize,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "deposit_reason")]
 pub enum DepositReason {
     #[sea_orm(string_value = "gifted")]

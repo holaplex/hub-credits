@@ -10,6 +10,7 @@ pub struct Model {
     pub balance: i64,
     pub created_at: DateTime,
     pub updated_at: Option<DateTime>,
+    pub pending_balance: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

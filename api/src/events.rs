@@ -8,7 +8,7 @@ use crate::{
     db::Connection,
     entities::{
         credit_deductions, credit_deposits, organization_credits,
-        sea_orm_active_enums::{self, DepositReason},
+        sea_orm_active_enums::{self, DeductionStatus, DepositReason},
     },
     proto::{credits_mpsc_event, organization_events, Organization, OrganizationEventKey},
     Services,
@@ -67,6 +67,7 @@ async fn deposit_gifted_credits(
     let org_credits = organization_credits::ActiveModel {
         id: Set(org),
         balance: Set(gift_amount.try_into()?),
+        pending_balance: Set(gift_amount.try_into()?),
         updated_at: Set(None),
         ..Default::default()
     };
@@ -76,6 +77,7 @@ async fn deposit_gifted_credits(
     Ok(())
 }
 
+// Status == Pending
 async fn deduct_credits(
     db: Connection,
     producer: Producer<CreditsEvent>,
@@ -88,9 +90,11 @@ async fn deduct_credits(
         credits,
         action,
         blockchain,
+        organization,
     } = c;
 
-    let org_id = Uuid::from_str(&id)?;
+    let org_id = Uuid::from_str(&organization)?;
+    let id = Uuid::from_str(&id)?;
     let user_id = Uuid::from_str(&user_id)?;
 
     let org_credits_model = organization_credits::Entity::find_by_id(org_id)
@@ -99,30 +103,33 @@ async fn deduct_credits(
         .ok_or_else(|| anyhow!("No organization found with id {}", org_id))?;
     let mut org_credits: organization_credits::ActiveModel = org_credits_model.clone().into();
 
-    org_credits.balance = Set(org_credits_model.balance.sub(credits));
+    org_credits.pending_balance = Set(org_credits_model.pending_balance.sub(credits));
 
     let action = Action::from_i32(action).ok_or_else(|| anyhow!("Invalid action: {}", action))?;
     let blockchain = Blockchain::from_i32(blockchain)
         .ok_or_else(|| anyhow!("Unsupported blockchain: {}", blockchain))?;
 
     let credit_deductions = credit_deductions::ActiveModel {
+        id: Set(id),
         organization: Set(org_id),
         initiated_by: Set(user_id),
         credits: Set(credits),
         action: Set(action.try_into()?),
         blockchain: Set(blockchain.try_into()?),
+        status: Set(DeductionStatus::Pending),
         ..Default::default()
     };
 
     credit_deductions.insert(db.get()).await?;
     org_credits.update(db.get()).await?;
 
-    let event = CreditsEvent {
-        event: Some(credits_event::Event::CreditsDeducted(c)),
-    };
+    /// emit this event when the deduction is confirmed
+    /// Also update org_credits.balance
+    // let event = CreditsEvent {
+    //     event: Some(credits_event::Event::CreditsDeducted(c)),
+    // };
 
-    producer.send(Some(&event), Some(&key)).await?;
-
+    // producer.send(Some(&event), Some(&key)).await?;
     Ok(())
 }
 
