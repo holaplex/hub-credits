@@ -6,7 +6,7 @@ use holaplex_hub_credits::{
     db::Connection,
     events,
     handlers::{get_organization, graphql_handler, health, playground},
-    AppState, Args, Services,
+    Actions, AppState, Args, Services,
 };
 use hub_core::{
     anyhow::Context as AnyhowContext,
@@ -34,7 +34,9 @@ pub fn main() {
 
             let schema = build_schema();
             let producer = common.producer_cfg.build::<credits::CreditsEvent>().await?;
-            let state = AppState::new(schema, connection.clone());
+
+            let credits = common.credits_cfg.build::<Actions>().await?;
+            let state = AppState::new(schema, connection.clone(), credits.clone());
 
             let cons = common.consumer_cfg.build::<Services>().await?;
             let conn = connection.clone();

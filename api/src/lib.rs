@@ -22,6 +22,7 @@ use hub_core::{
     anyhow::{Error, Result},
     clap,
     consumer::RecvError,
+    credits::{Action, CreditsClient},
     prelude::*,
     tokio,
     uuid::Uuid,
@@ -119,16 +120,40 @@ impl<'a> FromRequest<'a> for UserID {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, strum::EnumIter, strum::AsRefStr)]
+pub enum Actions {
+    CreateDrop,
+    MintEdition,
+    RetryMint,
+    TransferAsset,
+}
+
+impl From<Actions> for Action {
+    fn from(value: Actions) -> Self {
+        match value {
+            Actions::CreateDrop => Action::CreateDrop,
+            Actions::MintEdition => Action::MintEdition,
+            Actions::RetryMint => Action::RetryMint,
+            Actions::TransferAsset => Action::TransferAsset,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct AppState {
     pub schema: AppSchema,
     pub connection: Connection,
+    pub credits: CreditsClient<Actions>,
 }
 
 impl AppState {
     #[must_use]
-    pub fn new(schema: AppSchema, connection: Connection) -> Self {
-        Self { schema, connection }
+    pub fn new(schema: AppSchema, connection: Connection, credits: CreditsClient<Actions>) -> Self {
+        Self {
+            schema,
+            connection,
+            credits,
+        }
     }
 }
 
