@@ -53,7 +53,7 @@ pub enum Services {
 }
 
 impl hub_core::consumer::MessageGroup for Services {
-    const REQUESTED_TOPICS: &'static [&'static str] = &["hub-orgs"];
+    const REQUESTED_TOPICS: &'static [&'static str] = &["hub-orgs", "credits_mpsc"];
 
     fn from_message<M: hub_core::consumer::Message>(msg: &M) -> Result<Self, RecvError> {
         let topic = msg.topic();
@@ -68,7 +68,7 @@ impl hub_core::consumer::MessageGroup for Services {
 
                 Ok(Services::Organizations(key, val))
             },
-            "credits-mpsc" => {
+            "credits_mpsc" => {
                 let key = credits::CreditsEventKey::decode(key)?;
                 let val = proto::CreditsMpscEvent::decode(val)?;
 
