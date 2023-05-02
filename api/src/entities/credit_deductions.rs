@@ -2,7 +2,7 @@
 
 use sea_orm::entity::prelude::*;
 
-use super::sea_orm_active_enums::{Action, Blockchain};
+use super::sea_orm_active_enums::{Action, Blockchain, DeductionStatus};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "credit_deductions")]
@@ -15,6 +15,7 @@ pub struct Model {
     pub action: Action,
     pub blockchain: Blockchain,
     pub created_at: DateTime,
+    pub status: DeductionStatus,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

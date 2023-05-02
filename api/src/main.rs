@@ -2,7 +2,7 @@
 
 use async_std::stream::StreamExt;
 use holaplex_hub_credits::{
-    build_schema,
+    build_schema, credits,
     db::Connection,
     events,
     handlers::{get_organization, graphql_handler, health, playground},
@@ -33,7 +33,7 @@ pub fn main() {
                 .context("failed to get database connection")?;
 
             let schema = build_schema();
-
+            let producer = common.producer_cfg.build::<credits::CreditsEvent>().await?;
             let state = AppState::new(schema, connection.clone());
 
             let cons = common.consumer_cfg.build::<Services>().await?;
@@ -44,13 +44,20 @@ pub fn main() {
                     let mut stream = cons.stream();
                     loop {
                         let conn = conn.clone();
+                        let producer = producer.clone();
 
                         match stream.next().await {
                             Some(Ok(msg)) => {
                                 info!(?msg, "message received");
 
                                 tokio::spawn(async move {
-                                    events::process(msg, conn.clone(), gift_amount).await
+                                    events::process(
+                                        msg,
+                                        conn.clone(),
+                                        producer.clone(),
+                                        gift_amount,
+                                    )
+                                    .await
                                 });
                                 task::yield_now().await;
                             },
