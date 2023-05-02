@@ -4,6 +4,8 @@ use async_graphql::*;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use crate::credits;
+
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Enum, Serialize, Deserialize,
 )]
@@ -19,6 +21,17 @@ pub enum Action {
     TransferAsset,
 }
 
+impl From<Action> for credits::Action {
+    fn from(v: Action) -> Self {
+        match v {
+            Action::CreateDrop => Self::CreateDrop,
+            Action::MintEdition => Self::MintEdition,
+            Action::RetryMint => Self::RetryMint,
+            Action::TransferAsset => Self::TransferAsset,
+        }
+    }
+}
+
 #[derive(
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Copy, Enum, Serialize, Deserialize,
 )]
@@ -30,6 +43,16 @@ pub enum Blockchain {
     Polygon,
     #[sea_orm(string_value = "solana")]
     Solana,
+}
+
+impl From<Blockchain> for credits::Blockchain {
+    fn from(v: Blockchain) -> Self {
+        match v {
+            Blockchain::Solana => Self::Solana,
+            Blockchain::Polygon => Self::Polygon,
+            Blockchain::Ethereum => Self::Ethereum,
+        }
+    }
 }
 
 #[derive(

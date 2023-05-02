@@ -33,8 +33,11 @@ pub async fn process(
             Some(_) | None => Ok(()),
         },
         Services::CreditsMpsc(key, e) => match e.event {
-            Some(credits_mpsc_event::Event::DeductCredits(c)) => {
-                deduct_credits(db, producer, key, c).await
+            Some(credits_mpsc_event::Event::PendingDeduction(c)) => {
+                deduct_credits(db, key, c).await
+            },
+            Some(credits_mpsc_event::Event::ConfirmDeduction(_)) => {
+                confirm_credit_deduction(db, producer, key).await
             },
             None => Ok(()),
         },
@@ -77,13 +80,7 @@ async fn deposit_gifted_credits(
     Ok(())
 }
 
-// Status == Pending
-async fn deduct_credits(
-    db: Connection,
-    producer: Producer<CreditsEvent>,
-    key: CreditsEventKey,
-    c: Credits,
-) -> Result<()> {
+async fn deduct_credits(db: Connection, key: CreditsEventKey, c: Credits) -> Result<()> {
     let CreditsEventKey { id, user_id } = key.clone();
 
     let Credits {
@@ -123,13 +120,60 @@ async fn deduct_credits(
     credit_deductions.insert(db.get()).await?;
     org_credits.update(db.get()).await?;
 
-    /// emit this event when the deduction is confirmed
-    /// Also update org_credits.balance
-    // let event = CreditsEvent {
-    //     event: Some(credits_event::Event::CreditsDeducted(c)),
-    // };
+    Ok(())
+}
 
-    // producer.send(Some(&event), Some(&key)).await?;
+async fn confirm_credit_deduction(
+    db: Connection,
+    producer: Producer<CreditsEvent>,
+    key: CreditsEventKey,
+) -> Result<()> {
+    let CreditsEventKey { id, .. } = key.clone();
+
+    let id = Uuid::from_str(&id)?;
+
+    let credit_deductions_model = credit_deductions::Entity::find_by_id(id)
+        .one(db.get())
+        .await?
+        .ok_or_else(|| anyhow!("No credit deduction found with id {}", id))?;
+
+    let mut credit_deductions: credit_deductions::ActiveModel =
+        credit_deductions_model.clone().into();
+    credit_deductions.status = Set(DeductionStatus::Confirmed);
+
+    let org_credits_model =
+        organization_credits::Entity::find_by_id(credit_deductions_model.organization)
+            .one(db.get())
+            .await?
+            .ok_or_else(|| {
+                anyhow!(
+                    "No organization credits found for {}",
+                    credit_deductions_model.organization
+                )
+            })?;
+
+    let mut org_credits: organization_credits::ActiveModel = org_credits_model.clone().into();
+
+    org_credits.balance = Set(org_credits_model
+        .balance
+        .sub(credit_deductions_model.credits));
+
+    org_credits.update(db.get()).await?;
+    credit_deductions.update(db.get()).await?;
+
+    let blockchain: Blockchain = credit_deductions_model.blockchain.into();
+    let action: Action = credit_deductions_model.action.into();
+
+    let event = CreditsEvent {
+        event: Some(credits_event::Event::CreditsDeducted(Credits {
+            credits: credit_deductions_model.credits,
+            blockchain: blockchain.into(),
+            action: action.into(),
+            organization: credit_deductions_model.organization.to_string(),
+        })),
+    };
+
+    producer.send(Some(&event), Some(&key)).await?;
     Ok(())
 }
 

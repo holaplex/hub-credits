@@ -41,6 +41,7 @@ pub mod proto {
     include!(concat!(env!("OUT_DIR"), "/credits_mpsc.rs"));
 }
 
+#[allow(clippy::pedantic)]
 pub mod credits {
     include!(concat!(env!("OUT_DIR"), "/credits.rs"));
 }
