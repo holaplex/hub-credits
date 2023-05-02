@@ -34,7 +34,11 @@ pub async fn graphql_handler(
 
     let context = AppContext::new(state.connection.clone(), user_id);
 
-    Ok(state.schema.execute(req.0.data(context)).await.into())
+    Ok(state
+        .schema
+        .execute(req.0.data(context).data(state.credits.clone()))
+        .await
+        .into())
 }
 
 #[handler]
