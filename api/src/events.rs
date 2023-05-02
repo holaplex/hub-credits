@@ -56,6 +56,16 @@ async fn deposit_gifted_credits(
     let org: Uuid = Uuid::from_str(&org.id)?;
     let initiated_by = Uuid::from_str(&key.user_id)?;
 
+    let org_credits = organization_credits::ActiveModel {
+        id: Set(org),
+        balance: Set(gift_amount.try_into()?),
+        pending_balance: Set(gift_amount.try_into()?),
+        updated_at: Set(None),
+        ..Default::default()
+    };
+
+    org_credits.insert(db.get()).await?;
+
     let deposit = credit_deposits::ActiveModel {
         organization: Set(org),
         initiated_by: Set(initiated_by),
@@ -66,16 +76,6 @@ async fn deposit_gifted_credits(
     };
 
     deposit.insert(db.get()).await?;
-
-    let org_credits = organization_credits::ActiveModel {
-        id: Set(org),
-        balance: Set(gift_amount.try_into()?),
-        pending_balance: Set(gift_amount.try_into()?),
-        updated_at: Set(None),
-        ..Default::default()
-    };
-
-    org_credits.insert(db.get()).await?;
 
     Ok(())
 }
