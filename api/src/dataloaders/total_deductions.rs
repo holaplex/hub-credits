@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use async_graphql::{dataloader::Loader as DataLoader, FieldError, Result};
 use poem::async_trait;
-use sea_orm::{prelude::*, FromQueryResult, QuerySelect};
+use sea_orm::{prelude::*, sea_query::Alias, FromQueryResult, QuerySelect};
 
 use crate::{
     db::Connection,
@@ -32,7 +32,12 @@ impl DataLoader<Uuid> for Loader {
             .select_only()
             .column(credit_deductions::Column::Organization)
             .column(credit_deductions::Column::Action)
-            .column_as(credit_deductions::Column::Credits.sum(), "spent")
+            .column_as(
+                credit_deductions::Column::Credits
+                    .sum()
+                    .cast_as(Alias::new("bigint")),
+                "spent",
+            )
             .filter(
                 credit_deductions::Column::Organization.is_in(keys.iter().map(ToOwned::to_owned)),
             )
@@ -55,7 +60,7 @@ impl DataLoader<Uuid> for Loader {
     }
 }
 
-#[derive(FromQueryResult)]
+#[derive(FromQueryResult, Debug)]
 pub struct TotalDeductions {
     pub organization: Uuid,
     pub action: Action,
