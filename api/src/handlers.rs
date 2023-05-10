@@ -60,10 +60,22 @@ pub async fn get_organization(
 pub struct GetOrganizationResponse {
     pub id: Uuid,
     pub balance: i64,
+    pub pending_balance: i64,
 }
 
 impl From<OrganizationCreditsModel> for GetOrganizationResponse {
-    fn from(OrganizationCreditsModel { id, balance, .. }: OrganizationCreditsModel) -> Self {
-        Self { id, balance }
+    fn from(
+        OrganizationCreditsModel {
+            id,
+            balance,
+            pending_balance,
+            ..
+        }: OrganizationCreditsModel,
+    ) -> Self {
+        Self {
+            id,
+            balance,
+            pending_balance,
+        }
     }
 }
