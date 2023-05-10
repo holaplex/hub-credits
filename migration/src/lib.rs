@@ -9,6 +9,7 @@ mod m20230424_222452_add_derive_column_cost_per_credit_to_credit_deposits;
 mod m20230501_140743_add_pending_balance_column_to_org_credits;
 mod m20230501_140859_drop_default_value_from_credit_deductions_id;
 mod m20230501_142306_add_status_column_to_credit_deductions;
+mod m20230510_164245_change_datatype_to_tz_utc;
 
 pub struct Migrator;
 
@@ -27,6 +28,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20230501_140743_add_pending_balance_column_to_org_credits::Migration),
             Box::new(m20230501_140859_drop_default_value_from_credit_deductions_id::Migration),
             Box::new(m20230501_142306_add_status_column_to_credit_deductions::Migration),
+            Box::new(m20230510_164245_change_datatype_to_tz_utc::Migration),
         ]
     }
 }

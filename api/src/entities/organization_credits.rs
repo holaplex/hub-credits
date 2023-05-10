@@ -8,8 +8,8 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
     pub balance: i64,
-    pub created_at: DateTime,
-    pub updated_at: Option<DateTime>,
+    pub created_at: DateTimeWithTimeZone,
+    pub updated_at: Option<DateTimeWithTimeZone>,
     pub pending_balance: i64,
 }
 

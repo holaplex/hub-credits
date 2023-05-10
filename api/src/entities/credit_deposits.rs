@@ -17,7 +17,7 @@ pub struct Model {
     #[sea_orm(column_type = "Double")]
     pub cost: f64,
     pub reason: DepositReason,
-    pub created_at: DateTime,
+    pub created_at: DateTimeWithTimeZone,
     #[sea_orm(column_type = "Double")]
     pub per_credit_cost: f64,
 }
