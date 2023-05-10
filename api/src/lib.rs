@@ -4,26 +4,80 @@
 
 pub mod dataloaders;
 pub mod db;
-#[allow(clippy::pedantic)]
 pub mod entities;
+pub mod events;
 pub mod handlers;
 pub mod mutations;
+pub mod objects;
 pub mod queries;
 
 use async_graphql::{
+    dataloader::DataLoader,
     extensions::{ApolloTracing, Logger},
-    EmptySubscription, Schema,
+    EmptyMutation, EmptySubscription, Schema,
 };
+use dataloaders::{CreditsLoader, TotalDeductionsLoader};
 use db::Connection;
 use hub_core::{
     anyhow::{Error, Result},
     clap,
+    consumer::RecvError,
+    credits::{Action, CreditsClient},
     prelude::*,
+    tokio,
     uuid::Uuid,
 };
-use mutations::Mutation;
 use poem::{async_trait, FromRequest, Request, RequestBody};
 use queries::Query;
+
+use crate::dataloaders::DepositsLoader;
+impl hub_core::producer::Message for credits::CreditsEvent {
+    type Key = credits::CreditsEventKey;
+}
+
+#[allow(clippy::pedantic)]
+pub mod proto {
+    include!(concat!(env!("OUT_DIR"), "/organization.proto.rs"));
+    include!(concat!(env!("OUT_DIR"), "/credits_mpsc.rs"));
+}
+
+#[allow(clippy::pedantic)]
+pub mod credits {
+    include!(concat!(env!("OUT_DIR"), "/credits.rs"));
+}
+
+#[derive(Debug)]
+pub enum Services {
+    Organizations(proto::OrganizationEventKey, proto::OrganizationEvents),
+    CreditsMpsc(credits::CreditsEventKey, proto::CreditsMpscEvent),
+}
+
+impl hub_core::consumer::MessageGroup for Services {
+    const REQUESTED_TOPICS: &'static [&'static str] = &["hub-orgs", "credits_mpsc"];
+
+    fn from_message<M: hub_core::consumer::Message>(msg: &M) -> Result<Self, RecvError> {
+        let topic = msg.topic();
+        let key = msg.key().ok_or(RecvError::MissingKey)?;
+        let val = msg.payload().ok_or(RecvError::MissingPayload)?;
+        info!(topic, ?key, ?val);
+
+        match topic {
+            "hub-orgs" => {
+                let key = proto::OrganizationEventKey::decode(key)?;
+                let val = proto::OrganizationEvents::decode(val)?;
+
+                Ok(Services::Organizations(key, val))
+            },
+            "credits_mpsc" => {
+                let key = credits::CreditsEventKey::decode(key)?;
+                let val = proto::CreditsMpscEvent::decode(val)?;
+
+                Ok(Services::CreditsMpsc(key, val))
+            },
+            t => Err(RecvError::BadTopic(t.into())),
+        }
+    }
+}
 
 #[derive(Debug, clap::Args)]
 #[command(version, author, about)]
@@ -33,9 +87,12 @@ pub struct Args {
 
     #[command(flatten)]
     pub db: db::DbArgs,
+
+    #[arg(short, long, env)]
+    pub gift_amount: u64,
 }
 
-pub type AppSchema = Schema<Query, Mutation, EmptySubscription>;
+pub type AppSchema = Schema<Query, EmptyMutation, EmptySubscription>;
 
 #[derive(Debug, Clone, Copy)]
 pub struct UserID(Option<Uuid>);
@@ -63,35 +120,73 @@ impl<'a> FromRequest<'a> for UserID {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, strum::EnumIter, strum::AsRefStr)]
+pub enum Actions {
+    CreateDrop,
+    MintEdition,
+    RetryMint,
+    TransferAsset,
+}
+
+impl From<Actions> for Action {
+    fn from(value: Actions) -> Self {
+        match value {
+            Actions::CreateDrop => Action::CreateDrop,
+            Actions::MintEdition => Action::MintEdition,
+            Actions::RetryMint => Action::RetryMint,
+            Actions::TransferAsset => Action::TransferAsset,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct AppState {
     pub schema: AppSchema,
     pub connection: Connection,
+    pub credits: CreditsClient<Actions>,
 }
 
 impl AppState {
     #[must_use]
-    pub fn new(schema: AppSchema, connection: Connection) -> Self {
-        Self { schema, connection }
+    pub fn new(schema: AppSchema, connection: Connection, credits: CreditsClient<Actions>) -> Self {
+        Self {
+            schema,
+            connection,
+            credits,
+        }
     }
 }
 
 pub struct AppContext {
     pub db: Connection,
     pub user_id: Option<Uuid>,
+    pub credits_loader: DataLoader<CreditsLoader>,
+    pub total_deductions_loader: DataLoader<TotalDeductionsLoader>,
+    pub deposits_loader: DataLoader<DepositsLoader>,
 }
 
 impl AppContext {
     #[must_use]
     pub fn new(db: Connection, user_id: Option<Uuid>) -> Self {
-        Self { db, user_id }
+        let credits_loader = DataLoader::new(CreditsLoader::new(db.clone()), tokio::spawn);
+        let total_deductions_loader =
+            DataLoader::new(TotalDeductionsLoader::new(db.clone()), tokio::spawn);
+        let deposits_loader = DataLoader::new(DepositsLoader::new(db.clone()), tokio::spawn);
+
+        Self {
+            db,
+            user_id,
+            credits_loader,
+            total_deductions_loader,
+            deposits_loader,
+        }
     }
 }
 
 /// Builds the GraphQL Schema, attaching the Database to the context
 #[must_use]
 pub fn build_schema() -> AppSchema {
-    Schema::build(Query::default(), Mutation::default(), EmptySubscription)
+    Schema::build(Query::default(), EmptyMutation, EmptySubscription)
         .extension(ApolloTracing)
         .extension(Logger)
         .enable_federation()

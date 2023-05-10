@@ -10,9 +10,27 @@ pub struct Model {
     pub balance: i64,
     pub created_at: DateTime,
     pub updated_at: Option<DateTime>,
+    pub pending_balance: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(has_many = "super::credit_deductions::Entity")]
+    CreditDeductions,
+    #[sea_orm(has_many = "super::credit_deposits::Entity")]
+    CreditDeposits,
+}
+
+impl Related<super::credit_deductions::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::CreditDeductions.def()
+    }
+}
+
+impl Related<super::credit_deposits::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::CreditDeposits.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}
