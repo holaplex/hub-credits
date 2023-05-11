@@ -14,6 +14,8 @@ use crate::{credits, Actions};
 pub enum Action {
     #[sea_orm(string_value = "create_drop")]
     CreateDrop,
+    #[sea_orm(string_value = "create_wallet")]
+    CreateWallet,
     #[sea_orm(string_value = "mint_edition")]
     MintEdition,
     #[sea_orm(string_value = "retry_mint")]
@@ -29,6 +31,7 @@ impl From<Action> for credits::Action {
             Action::MintEdition => Self::MintEdition,
             Action::RetryMint => Self::RetryMint,
             Action::TransferAsset => Self::TransferAsset,
+            Action::CreateWallet => Self::CreateWallet,
         }
     }
 }
@@ -40,6 +43,7 @@ impl From<Actions> for Action {
             Actions::MintEdition => Self::MintEdition,
             Actions::RetryMint => Self::RetryMint,
             Actions::TransferAsset => Self::TransferAsset,
+            Actions::CreateWallet => Self::CreateWallet,
         }
     }
 }

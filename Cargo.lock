@@ -1488,7 +1488,7 @@ dependencies = [
 [[package]]
 name = "holaplex-hub-core"
 version = "0.1.0"
-source = "git+https://github.com/holaplex/hub-core?branch=stable#bb4530a1fe278f8338bdba6773956965ea2d0f84"
+source = "git+https://github.com/holaplex/hub-core?branch=abdul/update-credits-schema-ver#75833cd8c05de00c48d100b6d129a0a02f34ac20"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1521,6 +1521,25 @@ dependencies = [
 [[package]]
 name = "holaplex-hub-core-build"
 version = "0.1.0"
+source = "git+https://github.com/holaplex/hub-core?branch=abdul/update-credits-schema-ver#75833cd8c05de00c48d100b6d129a0a02f34ac20"
+dependencies = [
+ "anyhow",
+ "dotenv",
+ "futures-util",
+ "hex",
+ "prost-build",
+ "reqwest",
+ "serde",
+ "sha2",
+ "tempfile",
+ "tokio",
+ "toml 0.5.11",
+ "url",
+]
+
+[[package]]
+name = "holaplex-hub-core-build"
+version = "0.1.0"
 source = "git+https://github.com/holaplex/hub-core?branch=stable#bb4530a1fe278f8338bdba6773956965ea2d0f84"
 dependencies = [
  "anyhow",
@@ -1540,9 +1559,9 @@ dependencies = [
 [[package]]
 name = "holaplex-hub-core-schemas"
 version = "0.1.0"
-source = "git+https://github.com/holaplex/hub-core?branch=stable#bb4530a1fe278f8338bdba6773956965ea2d0f84"
+source = "git+https://github.com/holaplex/hub-core?branch=abdul/update-credits-schema-ver#75833cd8c05de00c48d100b6d129a0a02f34ac20"
 dependencies = [
- "holaplex-hub-core-build",
+ "holaplex-hub-core-build 0.1.0 (git+https://github.com/holaplex/hub-core?branch=abdul/update-credits-schema-ver)",
  "prost",
 ]
 
@@ -1555,7 +1574,7 @@ dependencies = [
  "async-std",
  "async-stripe",
  "holaplex-hub-core",
- "holaplex-hub-core-build",
+ "holaplex-hub-core-build 0.1.0 (git+https://github.com/holaplex/hub-core?branch=stable)",
  "poem",
  "prost",
  "sea-orm",

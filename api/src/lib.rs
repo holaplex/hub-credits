@@ -157,6 +157,7 @@ pub enum Actions {
     MintEdition,
     RetryMint,
     TransferAsset,
+    CreateWallet,
 }
 
 impl From<Actions> for Action {
@@ -166,6 +167,7 @@ impl From<Actions> for Action {
             Actions::MintEdition => Action::MintEdition,
             Actions::RetryMint => Action::RetryMint,
             Actions::TransferAsset => Action::TransferAsset,
+            Actions::CreateWallet => Action::CreateWallet,
         }
     }
 }
