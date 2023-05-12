@@ -6,7 +6,7 @@ on:
       - release
 
 env:
-  SERVICE_NAME: nfts
+  SERVICE_NAME: credits
   DOCKERHUB_REPO: ${{ vars.DOCKERHUB_ORG }}/${{ github.event.repository.name }}
   DOCKERHUB_MIGRATIONS_REPO: ${{ vars.DOCKERHUB_ORG }}/${{ github.event.repository.name }}-migrations
   CHECK_INTERVAL: 10
