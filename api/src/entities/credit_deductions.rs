@@ -14,7 +14,7 @@ pub struct Model {
     pub credits: i64,
     pub action: Action,
     pub blockchain: Blockchain,
-    pub created_at: DateTime,
+    pub created_at: DateTimeWithTimeZone,
     pub status: DeductionStatus,
 }
 
