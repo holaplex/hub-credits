@@ -11,3 +11,10 @@ Requires:
 $ docker compose up -d
 $ cargo run --bin hub-credits
 ```
+
+Set stripe secrets for in `.env.local` to enable fulfillment of credit purchases using stripe.
+
+```
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+```
