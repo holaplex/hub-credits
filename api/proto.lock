@@ -1,7 +1,7 @@
 [[schemas]]
 subject = "credits"
-version = 3
-sha512 = "292dce4214a844dbec98405bf73c285b4bfa8c508741c0940135d30980b0d68183b0a0b0eb68279358d19eeb686153689715dab6f9e954441fc3d364d083aefb"
+version = 4
+sha512 = "04ff23faf5e5b416824e4e6b533e91992826ea0b26599b956ccec16238be8a2ca318eaf337931048f8619fa8b9b677224666ae661a8e4fb8d369cb728bfc94fb"
 
 [[schemas]]
 subject = "credits_mpsc"
