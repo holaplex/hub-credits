@@ -13,3 +13,9 @@ polygon = 10
 [TransferAsset]
 solana = 5
 polygon = 10
+
+[CreateWallet]
+solana = 10
+
+[RetryDrop]
+solana = 0
