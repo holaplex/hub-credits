@@ -162,7 +162,7 @@ pub enum CreditDeductions {
     CreatedAt,
 }
 
-enum Action {
+pub enum Action {
     Type,
     CreateDrop,
     MintEdition,
