@@ -188,6 +188,7 @@ impl TryFrom<Action> for sea_orm_active_enums::Action {
             Action::TransferAsset => Ok(Self::TransferAsset),
             Action::RetryMint => Ok(Self::RetryMint),
             Action::CreateWallet => Ok(Self::CreateWallet),
+            Action::RetryDrop => Ok(Self::RetryDrop),
         }
     }
 }

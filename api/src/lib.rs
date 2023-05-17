@@ -158,6 +158,7 @@ pub enum Actions {
     RetryMint,
     TransferAsset,
     CreateWallet,
+    RetryDrop,
 }
 
 impl From<Actions> for Action {
@@ -168,6 +169,7 @@ impl From<Actions> for Action {
             Actions::RetryMint => Action::RetryMint,
             Actions::TransferAsset => Action::TransferAsset,
             Actions::CreateWallet => Action::CreateWallet,
+            Actions::RetryDrop => Action::RetryDrop,
         }
     }
 }
