@@ -28,10 +28,14 @@ async-graphql = { version = "5.0.7", features = [
   "dataloader",
   "apollo_tracing",
   "decimal",
-  "bigdecimal"
+  "bigdecimal",
 ] }
 prost = "0.11.6"
 async-graphql-poem = "5.0.7"
+async-stripe = { version = "0.18.3", features = [
+  "runtime-tokio-hyper",
+  "webhook-events",
+] }
 async-std = { version = "^1", features = ["attributes", "tokio1"] }
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = { version = "1.0.91" }
@@ -39,13 +43,13 @@ strum = { version = "0.24.1", features = ["derive"] }
 
 [dependencies.hub-core]
 package = "holaplex-hub-core"
-version = "0.1.0"
+version = "0.2.0"
 git = "https://github.com/holaplex/hub-core"
 branch = "stable"
 features = ["kafka", "credits"]
 
 [build-dependencies.hub-core-build]
 package = "holaplex-hub-core-build"
-version = "0.1.0"
+version = "0.2.0"
 git = "https://github.com/holaplex/hub-core"
 branch = "stable"

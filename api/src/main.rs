@@ -5,7 +5,8 @@ use holaplex_hub_credits::{
     build_schema, credits,
     db::Connection,
     events,
-    handlers::{get_organization, graphql_handler, health, playground},
+    handlers::{get_organization, graphql_handler, health, playground, stripe_webhook},
+    stripe::Stripe,
     Actions, AppState, Args, Services,
 };
 use hub_core::{
@@ -25,6 +26,7 @@ pub fn main() {
             port,
             db,
             gift_amount,
+            stripe,
         } = args;
 
         common.rt.block_on(async move {
@@ -36,7 +38,8 @@ pub fn main() {
             let producer = common.producer_cfg.build::<credits::CreditsEvent>().await?;
 
             let credits = common.credits_cfg.build::<Actions>().await?;
-            let state = AppState::new(schema, connection.clone(), credits.clone());
+            let stripe = Stripe::new(stripe.stripe_secret_key, stripe.stripe_webhook_secret);
+            let state = AppState::new(schema, connection.clone(), credits.clone(), stripe);
 
             let cons = common.consumer_cfg.build::<Services>().await?;
             let conn = connection.clone();
@@ -81,7 +84,11 @@ pub fn main() {
                         )
                         .at(
                             "/internal/organizations/:organization",
-                            get(get_organization).data(connection),
+                            get(get_organization).data(connection.clone()),
+                        )
+                        .at(
+                            "/webhooks/stripe",
+                            post(stripe_webhook).data(connection).data(state.stripe),
                         )
                         .at("/playground", get(playground))
                         .at("/health", get(health)),

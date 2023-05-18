@@ -81,7 +81,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(Iden)]
-enum CreditDeposits {
+pub enum CreditDeposits {
     Table,
     Id,
     Organization,

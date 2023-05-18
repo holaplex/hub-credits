@@ -10,6 +10,7 @@ pub mod handlers;
 pub mod mutations;
 pub mod objects;
 pub mod queries;
+pub mod stripe;
 
 use async_graphql::{
     dataloader::DataLoader,
@@ -27,10 +28,13 @@ use hub_core::{
     tokio,
     uuid::Uuid,
 };
-use poem::{async_trait, FromRequest, Request, RequestBody};
+use poem::{async_trait, http::StatusCode, FromRequest, Request, RequestBody};
 use queries::Query;
 
-use crate::dataloaders::DepositsLoader;
+use crate::{
+    dataloaders::DepositsLoader,
+    stripe::{Stripe, StripeArgs},
+};
 impl hub_core::producer::Message for credits::CreditsEvent {
     type Key = credits::CreditsEventKey;
 }
@@ -90,6 +94,9 @@ pub struct Args {
 
     #[arg(short, long, env)]
     pub gift_amount: u64,
+
+    #[command(flatten)]
+    pub stripe: StripeArgs,
 }
 
 pub type AppSchema = Schema<Query, EmptyMutation, EmptySubscription>;
@@ -120,12 +127,38 @@ impl<'a> FromRequest<'a> for UserID {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct StripeSignature(String);
+
+impl StripeSignature {
+    #[must_use]
+    pub fn content(&self) -> String {
+        self.0.clone()
+    }
+}
+
+#[async_trait]
+impl<'a> FromRequest<'a> for StripeSignature {
+    async fn from_request(req: &'a Request, _body: &mut RequestBody) -> poem::Result<Self> {
+        let stripe_signature = req
+            .headers()
+            .get("Stripe-Signature")
+            .and_then(|value| value.to_str().ok())
+            .ok_or_else(|| {
+                poem::Error::from_string("missing stripe signature", StatusCode::BAD_REQUEST)
+            })?;
+
+        Ok(StripeSignature(stripe_signature.to_string()))
+    }
+}
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, strum::EnumIter, strum::AsRefStr)]
 pub enum Actions {
     CreateDrop,
     MintEdition,
     RetryMint,
     TransferAsset,
+    CreateWallet,
+    RetryDrop,
 }
 
 impl From<Actions> for Action {
@@ -135,6 +168,8 @@ impl From<Actions> for Action {
             Actions::MintEdition => Action::MintEdition,
             Actions::RetryMint => Action::RetryMint,
             Actions::TransferAsset => Action::TransferAsset,
+            Actions::CreateWallet => Action::CreateWallet,
+            Actions::RetryDrop => Action::RetryDrop,
         }
     }
 }
@@ -144,15 +179,22 @@ pub struct AppState {
     pub schema: AppSchema,
     pub connection: Connection,
     pub credits: CreditsClient<Actions>,
+    pub stripe: Stripe,
 }
 
 impl AppState {
     #[must_use]
-    pub fn new(schema: AppSchema, connection: Connection, credits: CreditsClient<Actions>) -> Self {
+    pub fn new(
+        schema: AppSchema,
+        connection: Connection,
+        credits: CreditsClient<Actions>,
+        stripe: Stripe,
+    ) -> Self {
         Self {
             schema,
             connection,
             credits,
+            stripe,
         }
     }
 }
