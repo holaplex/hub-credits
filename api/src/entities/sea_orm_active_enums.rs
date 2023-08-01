@@ -24,6 +24,14 @@ pub enum Action {
     RetryMint,
     #[sea_orm(string_value = "transfer_asset")]
     TransferAsset,
+    #[sea_orm(string_value = "create_collection")]
+    CreateCollection,
+    #[sea_orm(string_value = "retry_collection")]
+    RetryCollection,
+    #[sea_orm(string_value = "mint")]
+    Mint,
+    #[sea_orm(string_value = "mint_compressed")]
+    MintCompressed,
 }
 
 impl From<Action> for credits::Action {
@@ -35,6 +43,10 @@ impl From<Action> for credits::Action {
             Action::TransferAsset => Self::TransferAsset,
             Action::CreateWallet => Self::CreateWallet,
             Action::RetryDrop => Self::RetryDrop,
+            Action::CreateCollection => Self::CreateCollection,
+            Action::RetryCollection => Self::RetryCollection,
+            Action::Mint => Self::Mint,
+            Action::MintCompressed => Self::MintCompressed,
         }
     }
 }
@@ -48,6 +60,10 @@ impl From<Actions> for Action {
             Actions::TransferAsset => Self::TransferAsset,
             Actions::CreateWallet => Self::CreateWallet,
             Actions::RetryDrop => Self::RetryDrop,
+            Actions::CreateCollection => Self::CreateCollection,
+            Actions::RetryCollection => Self::RetryCollection,
+            Actions::Mint => Self::Mint,
+            Actions::MintCompressed => Self::MintCompressed,
         }
     }
 }
