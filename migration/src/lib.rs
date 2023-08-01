@@ -14,6 +14,7 @@ mod m20230511_000729_add_create_wallet_to_action_enum;
 mod m20230516_140429_fix_derive_column_cost_per_credit_to_credit_deposits;
 mod m20230517_135548_add_retry_drop;
 mod m20230518_032633_set_default_timestamp;
+mod m20230801_191953_add_collection_and_mint_action_enums;
 
 pub struct Migrator;
 
@@ -39,6 +40,7 @@ impl MigratorTrait for Migrator {
             ),
             Box::new(m20230517_135548_add_retry_drop::Migration),
             Box::new(m20230518_032633_set_default_timestamp::Migration),
+            Box::new(m20230801_191953_add_collection_and_mint_action_enums::Migration),
         ]
     }
 }
