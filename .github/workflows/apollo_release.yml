@@ -1,5 +1,6 @@
 name: Apollo Graph schema update
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
