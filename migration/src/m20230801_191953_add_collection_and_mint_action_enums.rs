@@ -13,8 +13,32 @@ impl MigrationTrait for Migration {
                 Type::alter()
                     .name(Action::Type)
                     .add_value(Alias::new("create_collection"))
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .alter_type(
+                Type::alter()
+                    .name(Action::Type)
                     .add_value(Alias::new("retry_collection"))
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .alter_type(
+                Type::alter()
+                    .name(Action::Type)
                     .add_value(Alias::new("mint"))
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .alter_type(
+                Type::alter()
+                    .name(Action::Type)
                     .add_value(Alias::new("mint_compressed"))
                     .to_owned(),
             )
