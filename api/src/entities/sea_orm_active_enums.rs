@@ -32,6 +32,8 @@ pub enum Action {
     Mint,
     #[sea_orm(string_value = "mint_compressed")]
     MintCompressed,
+    #[sea_orm(string_value = "update_mint")]
+    UpdateMint,
 }
 
 impl From<Action> for credits::Action {
@@ -47,6 +49,7 @@ impl From<Action> for credits::Action {
             Action::RetryCollection => Self::RetryCollection,
             Action::Mint => Self::Mint,
             Action::MintCompressed => Self::MintCompressed,
+            Action::UpdateMint => Self::UpdateMint,
         }
     }
 }
@@ -64,6 +67,7 @@ impl From<Actions> for Action {
             Actions::RetryCollection => Self::RetryCollection,
             Actions::Mint => Self::Mint,
             Actions::MintCompressed => Self::MintCompressed,
+            Actions::UpdateMint => Self::UpdateMint,
         }
     }
 }
