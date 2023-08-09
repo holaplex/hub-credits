@@ -59,6 +59,6 @@ pub struct ActionCost {
 pub struct BlockchainCost {
     /// enum that represents the blockchain on which the action is being performed.
     pub blockchain: Blockchain,
-    /// represents the cost in credits for performing the action on the blockchain.
-    pub credits: u64,
+    /// represents the cost in credits for performing the action on the blockchain. If nil then the action is not supported on the blockchain.
+    pub credits: Option<u64>,
 }
