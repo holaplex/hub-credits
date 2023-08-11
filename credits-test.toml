@@ -33,3 +33,8 @@ solana = 1
 
 [RetryCollection]
 solana = 0
+polygon = 0
+
+[UpdateMint]
+solana = 0
+polygon = 0

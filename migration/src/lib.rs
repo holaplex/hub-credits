@@ -15,6 +15,7 @@ mod m20230516_140429_fix_derive_column_cost_per_credit_to_credit_deposits;
 mod m20230517_135548_add_retry_drop;
 mod m20230518_032633_set_default_timestamp;
 mod m20230801_191953_add_collection_and_mint_action_enums;
+mod m20230802_112419_add_update_mint_enum_variant;
 
 pub struct Migrator;
 
@@ -41,6 +42,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20230517_135548_add_retry_drop::Migration),
             Box::new(m20230518_032633_set_default_timestamp::Migration),
             Box::new(m20230801_191953_add_collection_and_mint_action_enums::Migration),
+            Box::new(m20230802_112419_add_update_mint_enum_variant::Migration),
         ]
     }
 }
