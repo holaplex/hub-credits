@@ -24,6 +24,8 @@ use crate::{
     AppContext, AppState, StripeSignature, UserID,
 };
 
+const CREDITS_PACK_SIZE: i64 = 100;
+
 #[handler]
 pub fn health() {}
 
@@ -180,6 +182,8 @@ async fn handle_checkout_session_completed(
         .ok_or_else(|| {
             Error::from_string("organization credits not found", StatusCode::NOT_FOUND)
         })?;
+
+    let credits = credits * CREDITS_PACK_SIZE;
 
     let credit_balance = organization_credits.balance + credits;
     let pending_credit_balance = organization_credits.pending_balance + credits;
