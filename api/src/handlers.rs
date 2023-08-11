@@ -24,6 +24,8 @@ use crate::{
     AppContext, AppState, StripeSignature, UserID,
 };
 
+const CREDITS_PACK_SIZE: i64 = 100;
+
 #[handler]
 pub fn health() {}
 
@@ -150,6 +152,8 @@ async fn handle_checkout_session_completed(
         })?
         .try_into()
         .map_err(anyhow::Error::from)?;
+
+    let credits = credits * CREDITS_PACK_SIZE;
 
     let stripe::CheckoutSession { amount_total, .. } = session;
 
