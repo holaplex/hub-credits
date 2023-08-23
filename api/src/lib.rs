@@ -164,6 +164,7 @@ pub enum Actions {
     Mint,
     MintCompressed,
     UpdateMint,
+    SwitchCollection,
 }
 
 impl From<Actions> for Action {
@@ -180,6 +181,7 @@ impl From<Actions> for Action {
             Actions::Mint => Action::Mint,
             Actions::MintCompressed => Action::MintCompressed,
             Actions::UpdateMint => Action::UpdateMint,
+            Actions::SwitchCollection => Action::SwitchCollection,
         }
     }
 }
