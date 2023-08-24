@@ -4,7 +4,6 @@ polygon = 25
 
 [Mint]
 solana = 60
-polygon = 25
 
 [CreateDrop]
 solana = 40
@@ -28,12 +27,14 @@ polygon = 0
 
 [CreateCollection]
 solana = 40
-polygon = 0
 
 [MintCompressed]
 solana = 1
-polygon = 0
 
 [RetryCollection]
+solana = 0
+polygon = 0
+
+[UpdateMint]
 solana = 0
 polygon = 0

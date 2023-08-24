@@ -163,6 +163,7 @@ pub enum Actions {
     RetryCollection,
     Mint,
     MintCompressed,
+    UpdateMint,
 }
 
 impl From<Actions> for Action {
@@ -178,6 +179,7 @@ impl From<Actions> for Action {
             Actions::RetryCollection => Action::RetryCollection,
             Actions::Mint => Action::Mint,
             Actions::MintCompressed => Action::MintCompressed,
+            Actions::UpdateMint => Action::UpdateMint,
         }
     }
 }
