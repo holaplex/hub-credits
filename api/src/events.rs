@@ -194,6 +194,7 @@ impl TryFrom<Action> for sea_orm_active_enums::Action {
             Action::Mint => Ok(Self::Mint),
             Action::MintCompressed => Ok(Self::MintCompressed),
             Action::UpdateMint => Ok(Self::UpdateMint),
+            Action::SwitchCollection => Ok(Self::SwitchCollection),
         }
     }
 }
