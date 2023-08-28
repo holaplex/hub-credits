@@ -1508,8 +1508,8 @@ dependencies = [
 
 [[package]]
 name = "holaplex-hub-core"
-version = "0.5.2"
-source = "git+https://github.com/holaplex/hub-core?branch=abdul/update-core-schemas#349042c8f61a35d3a0341f9393be7f5f0484fb75"
+version = "0.5.3"
+source = "git+https://github.com/holaplex/hub-core?branch=stable#40a8dfab0dbf2d01b0eda61ff1ce831e1ea4a10b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1545,26 +1545,7 @@ dependencies = [
 [[package]]
 name = "holaplex-hub-core-build"
 version = "0.2.1"
-source = "git+https://github.com/holaplex/hub-core?branch=abdul/update-core-schemas#349042c8f61a35d3a0341f9393be7f5f0484fb75"
-dependencies = [
- "anyhow",
- "dotenv",
- "futures-util",
- "hex",
- "prost-build",
- "reqwest",
- "serde",
- "sha2",
- "tempfile",
- "tokio",
- "toml 0.5.11",
- "url",
-]
-
-[[package]]
-name = "holaplex-hub-core-build"
-version = "0.2.1"
-source = "git+https://github.com/holaplex/hub-core?branch=stable#b4980ed55425e025945ca9960a33e7062a75ab06"
+source = "git+https://github.com/holaplex/hub-core?branch=stable#40a8dfab0dbf2d01b0eda61ff1ce831e1ea4a10b"
 dependencies = [
  "anyhow",
  "dotenv",
@@ -1583,7 +1564,7 @@ dependencies = [
 [[package]]
 name = "holaplex-hub-core-macros"
 version = "0.1.0"
-source = "git+https://github.com/holaplex/hub-core?branch=abdul/update-core-schemas#349042c8f61a35d3a0341f9393be7f5f0484fb75"
+source = "git+https://github.com/holaplex/hub-core?branch=stable#40a8dfab0dbf2d01b0eda61ff1ce831e1ea4a10b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1594,9 +1575,9 @@ dependencies = [
 [[package]]
 name = "holaplex-hub-core-schemas"
 version = "0.3.2"
-source = "git+https://github.com/holaplex/hub-core?branch=abdul/update-core-schemas#349042c8f61a35d3a0341f9393be7f5f0484fb75"
+source = "git+https://github.com/holaplex/hub-core?branch=stable#40a8dfab0dbf2d01b0eda61ff1ce831e1ea4a10b"
 dependencies = [
- "holaplex-hub-core-build 0.2.1 (git+https://github.com/holaplex/hub-core?branch=abdul/update-core-schemas)",
+ "holaplex-hub-core-build",
  "prost",
 ]
 
@@ -1609,7 +1590,7 @@ dependencies = [
  "async-std",
  "async-stripe",
  "holaplex-hub-core",
- "holaplex-hub-core-build 0.2.1 (git+https://github.com/holaplex/hub-core?branch=stable)",
+ "holaplex-hub-core-build",
  "poem",
  "prost",
  "sea-orm",

@@ -43,9 +43,9 @@ strum = { version = "0.24.1", features = ["derive"] }
 
 [dependencies.hub-core]
 package = "holaplex-hub-core"
-version = "0.5.2"
+version = "0.5.3"
 git = "https://github.com/holaplex/hub-core"
-branch = "abdul/update-core-schemas"
+branch = "stable"
 features = ["kafka", "credits"]
 
 [build-dependencies.hub-core-build]
