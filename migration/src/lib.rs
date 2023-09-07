@@ -16,6 +16,7 @@ mod m20230517_135548_add_retry_drop;
 mod m20230518_032633_set_default_timestamp;
 mod m20230801_191953_add_collection_and_mint_action_enums;
 mod m20230802_112419_add_update_mint_enum_variant;
+mod m20230823_085941_add_switch_collection_enum_variant;
 
 pub struct Migrator;
 
@@ -43,6 +44,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20230518_032633_set_default_timestamp::Migration),
             Box::new(m20230801_191953_add_collection_and_mint_action_enums::Migration),
             Box::new(m20230802_112419_add_update_mint_enum_variant::Migration),
+            Box::new(m20230823_085941_add_switch_collection_enum_variant::Migration),
         ]
     }
 }
